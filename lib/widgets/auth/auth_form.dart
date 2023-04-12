@@ -6,9 +6,12 @@ class AuthForm extends StatefulWidget {
     String password,
     String username,
     bool isLogin,
-    BuildContext auth_form_context,
+    BuildContext authFormContext,
   ) submitFn;
-  const AuthForm(this.submitFn);
+
+  bool _isLoading;
+
+  AuthForm(this.submitFn, this._isLoading);
 
   @override
   State<AuthForm> createState() => _AuthFormState();
@@ -18,8 +21,8 @@ class _AuthFormState extends State<AuthForm> {
   final _formKey = GlobalKey<FormState>();
   var _isLogin = true;
   String _userEmail = '';
-  String _userName = '';
   String _userPassword = '';
+  String _userName = '';
   void _trySubmit() {
     final isValid =
         _formKey.currentState!.validate(); // triggers all validators in a Form
@@ -28,11 +31,15 @@ class _AuthFormState extends State<AuthForm> {
     FocusScope.of(context).unfocus();
     if (isValid) {
       // if all validators return null => True
+      print(_userEmail);
+      print(_userPassword);
+      print(_userName);
+      print(_isLogin);
       _formKey.currentState!.save(); // triggers onsave and stores form values
       widget.submitFn(
         _userEmail.trim(),
-        _userName.trim(),
         _userPassword.trim(),
+        _userName.trim(),
         _isLogin,
         context,
       );
@@ -107,21 +114,24 @@ class _AuthFormState extends State<AuthForm> {
                     ),
                     obscureText: true,
                   ),
-                  const SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: _trySubmit,
-                    child: Text(_isLogin ? 'Login' : 'Sign up'),
-                  ), // password
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _isLogin = !_isLogin;
-                      });
-                    },
-                    child: Text(_isLogin
-                        ? 'Create an account'
-                        : 'I already have an account'),
-                  ), // password
+                  const SizedBox(height: 12),
+                  if (widget._isLoading) const CircularProgressIndicator(),
+                  if (!widget._isLoading)
+                    ElevatedButton(
+                      onPressed: _trySubmit,
+                      child: Text(_isLogin ? 'Login' : 'Sign up'),
+                    ), // password
+                  if (!widget._isLoading)
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _isLogin = !_isLogin;
+                        });
+                      },
+                      child: Text(_isLogin
+                          ? 'Create an account'
+                          : 'I already have an account'),
+                    ), // password
                 ],
               ),
             ),
